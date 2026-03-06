@@ -4,27 +4,29 @@
 [![npm version](https://img.shields.io/npm/v/orchestr8-mcp.svg)](https://www.npmjs.com/package/orchestr8-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Agent coordination for Claude Code — shared memory, smart routing, and learning.
+Agent coordination MCP server — shared memory, smart routing, and learning.
 
 ## The Problem
 
-When you spawn multiple agents in Claude Code, they're isolated: no shared state, no smart assignment, no memory between sessions. orchestr8 fixes that with 5 focused modules and 13 MCP tools.
+When you spawn multiple agents in AI coding tools, they're isolated: no shared state, no smart assignment, no memory between sessions. orchestr8 fixes that with 5 focused modules and 13 MCP tools.
 
 ## Quick Start
 
-### As an MCP Server (for Claude Code)
+### As an MCP Server
+
+Works with any MCP-compatible client — **Claude Code**, Claude Desktop, Cursor, Windsurf, VS Code (Copilot), Continue.dev, Zed, Cline, and more.
 
 ```bash
 npx orchestr8-mcp
 ```
 
-Or add it permanently:
+Or add it permanently in Claude Code:
 
 ```bash
-claude mcp add orchestr8 -- npx orchestr8-mcp-mcp
+claude mcp add orchestr8 -- npx orchestr8-mcp
 ```
 
-That's it. Claude Code now has access to 13 coordination tools. Memory persists to `~/.orchestr8/memory.db` across sessions.
+That's it. Your AI coding tool now has access to 13 coordination tools. Memory persists to `~/.orchestr8/memory.db` across sessions.
 
 ### As a Library
 
