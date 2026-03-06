@@ -1,0 +1,34 @@
+{
+  "name": "orchestr8",
+  "version": "0.1.0",
+  "description": "Agent coordination for Claude Code — shared memory, smart routing, and learning.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "orchestr8": "./dist/mcp/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "dev": "tsc --watch",
+    "mcp": "node dist/mcp/server.js"
+  },
+  "keywords": ["claude-code", "mcp", "agent-orchestration", "multi-agent", "shared-memory"],
+  "author": "Idris Idriszade",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "sql.js": "^1.11.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
