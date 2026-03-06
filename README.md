@@ -1,7 +1,7 @@
 # orchestr8
 
 [![CI](https://github.com/mrzadexinho/orchestr8/actions/workflows/ci.yml/badge.svg)](https://github.com/mrzadexinho/orchestr8/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/orchestr8.svg)](https://www.npmjs.com/package/orchestr8)
+[![npm version](https://img.shields.io/npm/v/orchestr8-mcp.svg)](https://www.npmjs.com/package/orchestr8-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Agent coordination for Claude Code — shared memory, smart routing, and learning.
@@ -15,13 +15,13 @@ When you spawn multiple agents in Claude Code, they're isolated: no shared state
 ### As an MCP Server (for Claude Code)
 
 ```bash
-npx orchestr8
+npx orchestr8-mcp
 ```
 
 Or add it permanently:
 
 ```bash
-claude mcp add orchestr8 -- npx orchestr8
+claude mcp add orchestr8 -- npx orchestr8-mcp-mcp
 ```
 
 That's it. Claude Code now has access to 13 coordination tools. Memory persists to `~/.orchestr8/memory.db` across sessions.
@@ -29,11 +29,11 @@ That's it. Claude Code now has access to 13 coordination tools. Memory persists 
 ### As a Library
 
 ```bash
-npm install orchestr8
+npm install orchestr8-mcp
 ```
 
 ```typescript
-import { HybridBackend, SQLiteBackend, VectorBackend, createMemoryEntry } from 'orchestr8';
+import { HybridBackend, SQLiteBackend, VectorBackend, createMemoryEntry } from 'orchestr8-mcp';
 
 const memory = new HybridBackend(
   new SQLiteBackend({ databasePath: './my-project.db' }),

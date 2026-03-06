@@ -1,5 +1,5 @@
 {
-  "name": "orchestr8",
+  "name": "orchestr8-mcp",
   "version": "0.1.0",
   "description": "Agent coordination for Claude Code — shared memory, smart routing, and learning.",
   "type": "module",
