@@ -1,27 +1,30 @@
 # orchestr8
 
+[![CI](https://github.com/mrzadexinho/orchestr8/actions/workflows/ci.yml/badge.svg)](https://github.com/mrzadexinho/orchestr8/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/orchestr8.svg)](https://www.npmjs.com/package/orchestr8)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Agent coordination for Claude Code — shared memory, smart routing, and learning.
 
-## What It Does
+## The Problem
 
-When you spawn multiple agents in Claude Code, they're isolated: no shared state, no smart assignment, no memory between sessions. orchestr8 fixes that.
-
-- **Shared Memory** — Agents read/write to namespaced memory (SQLite for structured queries + vector search for semantic)
-- **Smart Routing** — Tasks get matched to the best agent type based on keywords and historical success rates
-- **Coordination** — Task complexity analysis, 6-dimension agent scoring, automatic delegation planning
-- **Learning** — Patterns from successful tasks are stored, scored, promoted, and reused
-- **Message Bus** — Priority-based async messaging between agents
+When you spawn multiple agents in Claude Code, they're isolated: no shared state, no smart assignment, no memory between sessions. orchestr8 fixes that with 5 focused modules and 13 MCP tools.
 
 ## Quick Start
 
 ### As an MCP Server (for Claude Code)
 
 ```bash
-# Add to Claude Code
+npx orchestr8
+```
+
+Or add it permanently:
+
+```bash
 claude mcp add orchestr8 -- npx orchestr8
 ```
 
-That's it. Claude Code now has access to 13 coordination tools.
+That's it. Claude Code now has access to 13 coordination tools. Memory persists to `~/.orchestr8/memory.db` across sessions.
 
 ### As a Library
 
@@ -32,8 +35,10 @@ npm install orchestr8
 ```typescript
 import { HybridBackend, SQLiteBackend, VectorBackend, createMemoryEntry } from 'orchestr8';
 
-// Set up shared memory
-const memory = new HybridBackend(new SQLiteBackend(), new VectorBackend());
+const memory = new HybridBackend(
+  new SQLiteBackend({ databasePath: './my-project.db' }),
+  new VectorBackend()
+);
 await memory.initialize();
 
 // Store something agents can share
@@ -47,7 +52,7 @@ await memory.store(createMemoryEntry({
 // Another agent retrieves it
 const design = await memory.retrieve('auth-design', 'project-alpha');
 
-// Or search semantically
+// Or search by tags
 const results = await memory.query({
   type: 'tag',
   tags: ['architecture'],
@@ -103,28 +108,28 @@ orchestr8/
 └── mcp/             # Thin MCP server layer exposing all above
 ```
 
-### Design Principles
+## Key Design Decisions
 
-- **5 modules, 5 problems** — each module exists because it solves a specific coordination gap
-- **No stubs** — everything in the repo works and has tests
-- **Composable** — use the MCP server or import individual modules
-- **No bloat** — no plugin systems, no topology managers, no consensus engines
-
-### Key Patterns
-
-| Pattern | What It Does |
-|---------|-------------|
+| Decision | Why |
+|----------|-----|
 | **Dual-write memory** | Every write goes to both SQLite and vector store — query structured or semantic |
 | **Namespace isolation** | Agents coordinate through shared namespaces, private state stays private |
 | **6-dimension scoring** | Agents scored on capability, load, performance, health, availability — deterministic and tunable |
 | **Strategy selection** | Auto-picks sequential/parallel/pipeline/fan-out based on task structure |
 | **Pattern promotion** | Short-term patterns that prove useful get promoted to long-term storage |
 | **Priority deques** | O(1) message enqueue/dequeue with 4 urgency levels |
+| **sql.js (WASM)** | Pure JavaScript SQLite — no native compilation, works everywhere Node runs |
+
+## Configuration
+
+| Env Variable | Default | Description |
+|-------------|---------|-------------|
+| `ORCHESTR8_DATA_DIR` | `~/.orchestr8` | Directory for persistent data |
 
 ## Testing
 
 ```bash
-npm test          # Run all 90 tests
+npm test              # 90 tests across 13 suites
 npm run test:watch    # Watch mode
 npm run test:coverage # With coverage
 ```
@@ -132,12 +137,13 @@ npm run test:coverage # With coverage
 ## Development
 
 ```bash
+git clone https://github.com/mrzadexinho/orchestr8.git
+cd orchestr8
 npm install
-npm run build     # TypeScript compilation
-npm run dev       # Watch mode compilation
-npm test          # Vitest
+npm run build
+npm test
 ```
 
 ## License
 
-MIT
+MIT — [Idris Idriszade](https://github.com/mrzadexinho)
