@@ -1,12 +1,38 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import initSqlJs, { type Database } from 'sql.js';
 import type { IMemoryBackend, MemoryEntry, MemoryEntryInput, MemoryQuery, SearchResult } from './types.js';
 
+export interface SQLiteBackendConfig {
+  /** Path to SQLite database file. Use ':memory:' for in-memory only. */
+  databasePath?: string;
+}
+
 export class SQLiteBackend implements IMemoryBackend {
   private db: Database | null = null;
+  private config: SQLiteBackendConfig;
+
+  constructor(config: SQLiteBackendConfig = {}) {
+    this.config = config;
+  }
 
   async initialize(): Promise<void> {
     const SQL = await initSqlJs();
-    this.db = new SQL.Database();
+    const dbPath = this.config.databasePath;
+
+    if (dbPath && dbPath !== ':memory:') {
+      const dir = path.dirname(dbPath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+      if (fs.existsSync(dbPath)) {
+        const data = fs.readFileSync(dbPath);
+        this.db = new SQL.Database(data);
+      } else {
+        this.db = new SQL.Database();
+      }
+    } else {
+      this.db = new SQL.Database();
+    }
 
     this.db.run(`
       CREATE TABLE IF NOT EXISTS memory (
@@ -53,6 +79,7 @@ export class SQLiteBackend implements IMemoryBackend {
         entry.updatedAt,
       ]
     );
+    this.autoSave();
   }
 
   async retrieve(key: string, namespace: string = 'default'): Promise<MemoryEntry | undefined> {
@@ -68,7 +95,6 @@ export class SQLiteBackend implements IMemoryBackend {
     const row = stmt.getAsObject() as Record<string, unknown>;
     stmt.free();
 
-    // Increment access count
     db.run('UPDATE memory SET access_count = access_count + 1 WHERE id = ?', [row['id'] as string]);
 
     return this.rowToEntry(row);
@@ -174,18 +200,34 @@ export class SQLiteBackend implements IMemoryBackend {
     params.push(id);
 
     db.run(`UPDATE memory SET ${setClauses.join(', ')} WHERE id = ?`, params as (string | number | null)[]);
+    this.autoSave();
   }
 
   async delete(id: string): Promise<void> {
     const db = this.getDb();
     db.run('DELETE FROM memory WHERE id = ?', [id]);
+    this.autoSave();
   }
 
   async close(): Promise<void> {
     if (this.db) {
+      this.save();
       this.db.close();
       this.db = null;
     }
+  }
+
+  /** Persist database to disk (no-op for in-memory) */
+  save(): void {
+    const dbPath = this.config.databasePath;
+    if (!this.db || !dbPath || dbPath === ':memory:') return;
+    const data = this.db.export();
+    fs.writeFileSync(dbPath, Buffer.from(data));
+  }
+
+  private autoSave(): void {
+    const dbPath = this.config.databasePath;
+    if (dbPath && dbPath !== ':memory:') this.save();
   }
 
   private rowToEntry(row: Record<string, unknown>): MemoryEntry {

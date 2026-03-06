@@ -8,6 +8,7 @@ declare module 'sql.js' {
     exec(sql: string): QueryExecResult[];
     prepare(sql: string): Statement;
     close(): void;
+    export(): Uint8Array;
   }
 
   interface Statement {

@@ -10,5 +10,6 @@ export type {
 
 export { createMemoryEntry } from './types.js';
 export { SQLiteBackend } from './sqlite-backend.js';
+export type { SQLiteBackendConfig } from './sqlite-backend.js';
 export { VectorBackend } from './vector-backend.js';
 export { HybridBackend } from './hybrid-backend.js';
